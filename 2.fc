@@ -16,38 +16,49 @@ You may find useful https://ton.org/docs/#/smart-contracts/messages
 
 int equal_slices (slice a, slice b) asm "SDEQ";
 
-slice load_data () {
+slice load_data () impure {
   slice ds = get_data().begin_parse();
   slice address = ds~load_msg_addr();
 
   return address;
 }
 
-() save_data (slice owner_address) impure {
-  set_data(begin_cell().store_slice(owner_address).end_cell());
-}
+;; No need to save owner_address because it won't change
+;; () save_data (slice owner_address) impure {
+;;   set_data(begin_cell().store_slice(owner_address).end_cell());
+;; }
 
 ;; Parse sender address from incoming message
 (slice, int) parse_sender_address (cell in_msg_full) impure {
-  var cs = in_msg_full.begin_parse();
-  var flags = cs~load_uint(4);
+  slice cs = in_msg_full.begin_parse();
+  int flags = cs~load_uint(4);
   slice sender_address = cs~load_msg_addr();
+
   return (sender_address, flags);
 }
 
 ;; testable
 () recv_internal (int balance, int msg_value, cell in_msg_full, slice in_msg_body) {
   (slice sender_address, int flags) = parse_sender_address(in_msg_full);
-
   slice owner_address = load_data();
-  var msg = begin_cell()
+
+  ifnot (equal_slices(sender_address, owner_address)) {
+      ;; TODO: calculate tx gas and subtract from msg_value
+      int resend_value = msg_value - 1;
+
+      builder msg = begin_cell()
         .store_uint(0x10, 6)
         .store_slice(sender_address)
-        .store_grams(0)
+        .store_grams(resend_value)
         .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
-        .store_slice(owner_address)
-        .store_ref(in_msg_full)
-       .end_cell();
-  send_raw_message(msg, 0x64);
-  save_data(owner_address);
+        .store_uint(0, 32) ;; op-code
+        .store_uint(0, 64); ;; query_id
+
+      ifnot (slice_empty?(in_msg_body)) {
+        cell payload = begin_cell().store_slice(in_msg_body).end_cell();
+        msg.store_ref(payload);
+      }
+
+      send_raw_message(msg.end_cell(), 0x64);
+  }
 }
