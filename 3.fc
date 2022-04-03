@@ -8,7 +8,9 @@ In particular:
 
 * when contract get internal message from Manager with 32-bit unsigned `op` equal to 1 [more on op's here](https://ton.org/docs/#/howto/smart-contract-guidelines?id=internal-messages)
   followed by some 64-bit unsigned `query_id`,
-  followed by valid MsgAddress, it should store obtained address in the storage.
+  followed by valid MsgAddress,
+  ---
+  -> it should store obtained address in the storage.
 
 * when contract get internal message from any address with 32-bit unsigned `op` equal to 2 followed by some 64-bit unsigned `query_id`, it should response to sender with message with body containing:
   1) 32-bit ungisned `op` equal to 3
@@ -54,13 +56,12 @@ int equal_slices (slice a, slice b) asm "SDEQ";
     ifnot (equal_slices(last_manager_address, new_manager_address) & equal_slices(memorized_address, in_msg_body)) {
       save_data(new_manager_address, in_msg_body);
     }
-  } else {
-      if (op == 2) {
+  } elseif (op == 2)  {
         var (sender_address, _) = parse_sender_address(in_msg_full);
         var msg = begin_cell()
               .store_uint(0x10, 6)
               .store_slice(sender_address)
-              .store_grams(0)
+              .store_grams(msg_value)
               .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
               .store_uint(3, 32)
               .store_uint(query_id, 64)
@@ -69,9 +70,8 @@ int equal_slices (slice a, slice b) asm "SDEQ";
             .end_cell();
 
         send_raw_message(msg, 0x64);
-      } else {
+  } else {
         ;; Throw if address memorizer get any other message
         throw(300);
-      }
   }
 }
