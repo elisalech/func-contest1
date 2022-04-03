@@ -28,7 +28,7 @@ TASK 4 - HASHMAP STORAGE.
 
 -}
 
-(cell, cell) load_data() {
+(cell, cell) load_data() impure inline {
     slice ds = get_data().begin_parse();
     if (ds.slice_bits() == 0) {
         return (null(), null());
@@ -37,7 +37,7 @@ TASK 4 - HASHMAP STORAGE.
     }
 }
 
-() save_data(cell data_dict, cell valid_until_dict) impure {
+() save_data(cell data_dict, cell valid_until_dict) impure inline {
     set_data(begin_cell().store_dict(data_dict).store_dict(valid_until_dict).end_cell());
 }
 
@@ -45,6 +45,7 @@ TASK 4 - HASHMAP STORAGE.
 () recv_internal(int balance, int msg_value, cell in_msg_full, slice in_msg_body) {
     int op = in_msg_body~load_uint(32);
     int query_id = in_msg_body~load_uint(64);
+    ;; true
 
     (cell data_dict, cell valid_until_dict) = load_data();
 
@@ -54,35 +55,43 @@ TASK 4 - HASHMAP STORAGE.
       int valid_until = in_msg_body~load_uint(64);
       slice value = in_msg_body;
 
+;;    TODO: find find out how to convert int to slice to save value in dict...
+      valid_until_dict~udict_set(256, key, begin_cell().store_uint(valid_until, 64).end_cell().begin_parse());
       data_dict~udict_set(256, key, value);
-      valid_until_dict~udict_set_ref(256, key, begin_cell().store_uint(valid_until, 64).end_cell());
+
+      save_data(data_dict, valid_until_dict);
+    }   elseif (op == 2) { ;; remove outdated
+            int key = -1;
+             do {
+               (key, slice cs, int f) = valid_until_dict.udict_get_next?(256, key);
+               if (f) {
+                  int valid_until = cs.preload_uint(64);
+                  if (valid_until < now()) {
+                    valid_until_dict~udict_delete?(256, key);
+                    data_dict~udict_delete?(256, key);
+                  }
+               }
+             } until (~ f);
+            save_data(data_dict, valid_until_dict);
+    } else {
+;;      For all other internal messages an error should be thrown
+        throw(666);
     }
-
-    if (op == 2) { ;; remove outdated
-
-        int key = -1;
-         do {
-           (key, slice cs, int f) = valid_until.udict_get_next?(256, key);
-           if (f) {
-              int valid_until = cs~load_uint(64);
-              if (valid_until < now()) {
-                valid_until~udict_delete(256, key);
-                data_dict~udict_delete(256, key);
-              }
-           }
-         } until (~ f);
-
-    }
-
-    save_data(data_dict, valid_until_dict);
 }
 
 ;; testable
 (int, slice) get_key(int key) method_id {
     (cell data_dict, cell valid_until_dict) = load_data();
 
-    int valid_until = valid_until_dict~udict_get(key, 256)~load_uint(64);
-    slice value = data_dict~udict_get(key, 256).begin_parse();
+    var (slice valid_until_cs, int valid_until_cs_found) = valid_until_dict.udict_get?(256, key);
+    var (slice data, int data_found) = data_dict.udict_get?(256, key);
 
-    return (valid_until, value);
+    if (valid_until_cs_found & data_found) {
+       int valid_until = valid_until_cs.preload_uint(64);
+        return (valid_until, data);
+    }
+
+;;  If there is no entry for this key then an error should be thrown.?
+    throw(667);
+    return (null(), null());
 }
