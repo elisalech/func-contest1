@@ -16,7 +16,7 @@ You may find useful https://ton.org/docs/#/smart-contracts/messages
 
 int equal_slices (slice a, slice b) asm "SDEQ";
 
-slice load_data () impure {
+slice load_data () impure inline_ref {
   slice ds = get_data().begin_parse();
   slice address = ds~load_msg_addr();
 
@@ -29,7 +29,7 @@ slice load_data () impure {
 ;; }
 
 ;; Parse sender address from incoming message
-(slice, int) parse_sender_address (cell in_msg_full) impure {
+(slice, int) parse_sender_address (cell in_msg_full) impure inline_ref {
   slice cs = in_msg_full.begin_parse();
   int flags = cs~load_uint(4);
   slice sender_address = cs~load_msg_addr();
@@ -43,21 +43,14 @@ slice load_data () impure {
   slice owner_address = load_data();
 
   ifnot (equal_slices(sender_address, owner_address)) {
-      ;; TODO: calculate tx gas and subtract from msg_value
-      int resend_value = msg_value - 1;
-
+      cell payload = begin_cell().store_slice(in_msg_body).end_cell();
       builder msg = begin_cell()
         .store_uint(0x10, 6)
         .store_slice(sender_address)
-        .store_grams(resend_value)
+        .store_grams(msg_value)
         .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
-        .store_uint(0, 32) ;; op-code
-        .store_uint(0, 64); ;; query_id
-
-      ifnot (slice_empty?(in_msg_body)) {
-        cell payload = begin_cell().store_slice(in_msg_body).end_cell();
-        msg.store_ref(payload);
-      }
+        .store_slice(sender_address)
+        .store_ref(payload);
 
       send_raw_message(msg.end_cell(), 0x64);
   }
