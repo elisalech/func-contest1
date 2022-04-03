@@ -91,7 +91,7 @@ TASK 4 - HASHMAP STORAGE.
         return (valid_until, data);
     }
 
-;;  If there is no entry for this key then an error should be thrown.?
+;;  If there is no entry for this key then an error should be thrown.
     throw(667);
     return (null(), null());
 }
