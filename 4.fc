@@ -32,7 +32,7 @@ TASK 4 - HASHMAP STORAGE.
 (cell, cell) load_data() impure inline {
     slice ds = get_data().begin_parse();
 
-    return ds.slice_bits() == 0 ? (null(), null()) : (ds~load_dict(), ds~load_dict());
+    return ds.slice_bits() == 0 ? (new_dict(), new_dict()) : (ds~load_dict(), ds~load_dict());
 }
 
 () save_data(cell data_dict, cell valid_until_dict) impure inline {
@@ -43,7 +43,6 @@ TASK 4 - HASHMAP STORAGE.
 () recv_internal(int balance, int msg_value, cell in_msg_full, slice in_msg_body) {
     int op = in_msg_body~load_uint(32);
     int query_id = in_msg_body~load_uint(64);
-    ;; true
 
     (cell data_dict, cell valid_until_dict) = load_data();
 
@@ -53,9 +52,17 @@ TASK 4 - HASHMAP STORAGE.
       int valid_until = in_msg_body~load_uint(64);
       slice value = in_msg_body;
 
-;;    TODO: find find out how to convert int to slice to save value in dict...
-      valid_until_dict~udict_set(256, key, begin_cell().store_uint(valid_until, 64).end_cell().begin_parse());
-      data_dict~udict_set(256, key, value);
+      slice valid_until_slice = begin_cell().store_uint(valid_until, 64).end_cell().begin_parse();
+
+      var (_, f) = valid_until_dict.udict_get?(256, key);
+
+      if (f) {
+        valid_until_dict~udict_replace?(256, key, valid_until_slice);
+        data_dict~udict_replace?(256, key, value);
+      } else {
+        valid_until_dict~udict_set(256, key, valid_until_slice);
+        data_dict~udict_set(256, key, value);
+      }
 
       save_data(data_dict, valid_until_dict);
     }   elseif (op == 2) { ;; remove outdated
