@@ -114,7 +114,7 @@ cell pack_data(int public_key1, int public_key2) method_id {
   var (slice request_record, int found) = requests_dict.udict_get?(256, request_hash);
 
   if (found) {
-    var (int first_approved, int second_approved) = (request_record~load_uint(1), request_record~load_uint(1));
+    var (int first_approved, int second_approved) = (request_record~load_uint(1), request_record.preload_uint(1));
 
     ;; If the same request (regardless approved by one or both owners) is sent the second time it should be ignored.
     throw_if(91, (first_approved & sent_by_first) | (second_approved & sent_by_second));
