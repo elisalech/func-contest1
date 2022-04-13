@@ -1,0 +1,94 @@
+"Asm.fif" include
+// automatically generated from `/Users/vacheslaveliseev/Library/Application Support/toncli/func-libs/stdlib-tests.func` `/Users/vacheslaveliseev/@dev/ton/func-contest1/tests/func/3.fc` 
+PROGRAM{
+  DECLPROC load_data
+  DECLPROC save_data
+  DECLPROC parse_sender_address
+  DECLPROC parse_msg_body
+  DECLPROC recv_internal
+  load_data PROCREF:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  ds
+    LDMSGADDR	//  _3 ds
+    LDMSGADDR	//  _3 _10 _9
+    DROP	//  _3 _5
+  }>
+  save_data PROCREF:<{
+    //  manager_address memorized_address
+    NEWC
+    ROT	//  memorized_address _2 manager_address
+    STSLICER	//  memorized_address _3
+    SWAP	//  _3 memorized_address
+    STSLICER	//  _4
+    ENDC	//  _5
+    c4 POP
+  }>
+  parse_sender_address PROCREF:<{
+    //  in_msg_full
+    CTOS	//  cs
+    4 LDU	//  _11 _10
+    NIP	//  cs
+    LDMSGADDR	//  _13 _12
+    DROP	//  sender_address
+  }>
+  parse_msg_body PROCREF:<{
+    //  in_msg_body
+    32 LDI	//  _1 in_msg_body
+    64 LDU	//  _1 _10 _9
+    DROP	//  _1 _4
+  }>
+  recv_internal PROC:<{
+    //  balance msg_value in_msg_full in_msg_body
+    2 2 BLKDROP2	//  in_msg_full in_msg_body
+    load_data INLINECALLDICT	//  in_msg_full in_msg_body last_manager_address memorized_address
+    s2 PUSH	//  in_msg_full in_msg_body last_manager_address memorized_address in_msg_body
+    parse_msg_body INLINECALLDICT	//  in_msg_full in_msg_body last_manager_address memorized_address op query_id
+    OVER	//  in_msg_full in_msg_body last_manager_address memorized_address op query_id op
+    1 EQINT	//  in_msg_full in_msg_body last_manager_address memorized_address op query_id _11
+    IF:<{	//  in_msg_full in_msg_body last_manager_address memorized_address op query_id
+      2DROP	//  in_msg_full in_msg_body last_manager_address memorized_address
+      s0 s3 XCHG	//  memorized_address in_msg_body last_manager_address in_msg_full
+      parse_sender_address INLINECALLDICT	//  memorized_address in_msg_body last_manager_address new_manager_address
+      TUCK	//  memorized_address in_msg_body new_manager_address last_manager_address new_manager_address
+      SDEQ	//  memorized_address in_msg_body new_manager_address _15
+      s3 s2 XCPU	//  _15 in_msg_body new_manager_address memorized_address in_msg_body
+      SDEQ	//  _15 in_msg_body new_manager_address _16
+      s1 s3 XCHG	//  new_manager_address in_msg_body _15 _16
+      AND	//  new_manager_address in_msg_body _17
+      299 THROWIF
+      save_data INLINECALLDICT
+    }>ELSE<{	//  in_msg_full in_msg_body last_manager_address memorized_address op query_id
+      s4 POP	//  in_msg_full query_id last_manager_address memorized_address op
+      2 EQINT	//  in_msg_full query_id last_manager_address memorized_address _21
+      IF:<{	//  in_msg_full query_id last_manager_address memorized_address
+        s0 s3 XCHG	//  memorized_address query_id last_manager_address in_msg_full
+        parse_sender_address INLINECALLDICT	//  memorized_address query_id last_manager_address sender_address
+        3 PUSHINT	//  memorized_address query_id last_manager_address sender_address _25=3
+        0 PUSHINT	//  memorized_address query_id last_manager_address sender_address _25=3 _26=0
+        16 PUSHINT	//  memorized_address query_id last_manager_address sender_address _25=3 _26=0 _27=16
+        NEWC	//  memorized_address query_id last_manager_address sender_address _25=3 _26=0 _27=16 _28
+        6 STU	//  memorized_address query_id last_manager_address sender_address _25=3 _26=0 _30
+        s0 s3 XCHG2	//  memorized_address query_id last_manager_address _26=0 _25=3 _30 sender_address
+        STSLICER	//  memorized_address query_id last_manager_address _26=0 _25=3 _31
+        s2 PUSH	//  memorized_address query_id last_manager_address _26=0 _25=3 _31 _32=0
+        STGRAMS	//  memorized_address query_id last_manager_address _26=0 _25=3 _33
+        s1 s2 XCHG	//  memorized_address query_id last_manager_address _25=3 _26=0 _33
+        107 STU	//  memorized_address query_id last_manager_address _25=3 _47
+        32 STU	//  memorized_address query_id last_manager_address _49
+        s1 s2 XCHG	//  memorized_address last_manager_address query_id _49
+        64 STU	//  memorized_address last_manager_address _51
+        SWAP	//  memorized_address _51 last_manager_address
+        STSLICER	//  memorized_address _52
+        SWAP	//  _52 memorized_address
+        STSLICER	//  _53
+        ENDC	//  msg
+        64 PUSHINT	//  msg _55=64
+        SENDRAWMSG
+      }>ELSE<{	//  in_msg_full query_id last_manager_address memorized_address
+        4 BLKDROP	// 
+        300 THROW
+      }>
+    }>
+  }>
+}END>c

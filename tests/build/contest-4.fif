@@ -1,0 +1,111 @@
+"Asm.fif" include
+// automatically generated from `/Users/vacheslaveliseev/Library/Application Support/toncli/func-libs/stdlib-tests.func` `/Users/vacheslaveliseev/@dev/ton/func-contest1/tests/func/4.fc` 
+PROGRAM{
+  DECLPROC load_data
+  DECLPROC save_data
+  DECLPROC recv_internal
+  127977 DECLMETHOD get_key
+  load_data PROCREF:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  ds
+    DUP	//  ds ds
+    SBITS	//  ds _3
+    IF:<{	//  ds
+      PLDDICT	//  _4
+    }>ELSE<{	//  ds
+      DROP	// 
+      NEWDICT	//  _4
+    }>
+  }>
+  save_data PROCREF:<{
+    //  data_dict
+    NEWC	//  data_dict _1
+    STDICT	//  _2
+    ENDC	//  _3
+    c4 POP
+  }>
+  recv_internal PROC:<{
+    //  balance msg_value in_msg_full in_msg_body
+    3 1 BLKDROP2	//  in_msg_body
+    32 LDU	//  _6 in_msg_body
+    64 LDU	//  _6 _65 _64
+    NIP	//  op in_msg_body
+    load_data INLINECALLDICT	//  op in_msg_body data_dict
+    s2 PUSH	//  op in_msg_body data_dict op
+    1 EQINT	//  op in_msg_body data_dict _15
+    IF:<{	//  op in_msg_body data_dict
+      s2 POP	//  data_dict in_msg_body
+      256 LDU	//  data_dict key in_msg_body
+      64 LDU	//  data_dict key valid_until in_msg_body
+      SWAP
+      NEWC	//  data_dict key in_msg_body valid_until _25
+      64 STU	//  data_dict key in_msg_body _27
+      SWAP	//  data_dict key _27 in_msg_body
+      STSLICER	//  data_dict key _28
+      ENDC	//  data_dict key _29
+      CTOS	//  data_dict key value
+      s1 s2 PUSH2
+      8 PUSHPOW2	//  data_dict key value key data_dict _33=256
+      DICTUGET
+      NULLSWAPIFNOT	//  data_dict key value _70 _71
+      NIP	//  data_dict key value f
+      IF:<{	//  data_dict key value
+        s0 s2 XCHG
+        8 PUSHPOW2	//  value key data_dict _36=256
+        DICTUREPLACE	//  _72 _73
+        DROP	//  data_dict
+      }>ELSE<{	//  data_dict key value
+        s0 s2 XCHG
+        8 PUSHPOW2	//  value key data_dict _39=256
+        DICTUSET	//  data_dict
+      }>
+      save_data INLINECALLDICT
+    }>ELSE<{	//  op in_msg_body data_dict
+      NIP	//  op data_dict
+      SWAP	//  data_dict op
+      2 EQINT	//  data_dict _43
+      IF:<{	//  data_dict
+        -1 PUSHINT	//  data_dict key=-1
+        UNTIL:<{
+          OVER
+          8 PUSHPOW2	//  data_dict key data_dict _48=256
+          DICTUGETNEXT
+          NULLSWAPIFNOT2	//  data_dict cs key f
+          DUP	//  data_dict cs key f f
+          IF:<{	//  data_dict cs key f
+            s0 s2 XCHG	//  data_dict f key cs
+            64 PLDU	//  data_dict f key valid_until
+            NOW	//  data_dict f key valid_until _53
+            LESS	//  data_dict f key _54
+            IF:<{	//  data_dict f key
+              s0 s2 PUXC
+              8 PUSHPOW2	//  key f key data_dict _56=256
+              DICTUDEL	//  key f _77 _78
+              DROP	//  key f data_dict
+              s0 s2 XCHG	//  data_dict f key
+            }>	//  data_dict f key
+          }>ELSE<{
+            s2 POP	//  data_dict f key
+          }>
+          SWAP	//  data_dict key f
+          NOT	//  data_dict key _58
+        }>	//  data_dict key
+        DROP	//  data_dict
+        save_data INLINECALLDICT
+      }>ELSE<{	//  data_dict
+        DROP	// 
+        666 THROW
+      }>
+    }>
+  }>
+  get_key PROC:<{
+    //  key
+    load_data INLINECALLDICT	//  key data_dict
+    8 PUSHPOW2	//  key data_dict _5=256
+    DICTUGET
+    NULLSWAPIFNOT	//  data data_found
+    667 THROWIFNOT
+    64 LDU	//  valid_until data
+  }>
+}END>c

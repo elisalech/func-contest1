@@ -1,0 +1,46 @@
+"Asm.fif" include
+// automatically generated from `/Users/vacheslaveliseev/Library/Application Support/toncli/func-libs/stdlib-tests.func` `/Users/vacheslaveliseev/@dev/ton/func-contest1/tests/func/2.fc` 
+PROGRAM{
+  DECLPROC parse_sender_address
+  DECLPROC recv_internal
+  parse_sender_address PROCREF:<{
+    //  in_msg_full
+    CTOS	//  cs
+    4 LDU	//  flags cs
+    LDMSGADDR	//  flags _13 _12
+    DROP	//  flags sender_address
+    SWAP	//  sender_address flags
+  }>
+  recv_internal PROC:<{
+    //  balance msg_value in_msg_full in_msg_body
+    s3 POP
+    NIP	//  in_msg_body in_msg_full
+    parse_sender_address INLINECALLDICT	//  in_msg_body _45 _46
+    DROP	//  in_msg_body sender_address
+    c4 PUSH	//  in_msg_body sender_address _8
+    CTOS	//  in_msg_body sender_address owner_address
+    2DUP	//  in_msg_body sender_address owner_address sender_address owner_address
+    SDEQ	//  in_msg_body sender_address owner_address _11
+    100 THROWIF
+    NEWC	//  in_msg_body sender_address owner_address _14
+    s0 s3 XCHG2	//  owner_address sender_address _14 in_msg_body
+    STSLICER	//  owner_address sender_address _15
+    ENDC	//  owner_address sender_address payload
+    0 PUSHINT	//  owner_address sender_address payload _18=0
+    16 PUSHINT	//  owner_address sender_address payload _18=0 _19=16
+    NEWC	//  owner_address sender_address payload _18=0 _19=16 _20
+    6 STU	//  owner_address sender_address payload _18=0 _22
+    s0 s4 XCHG2	//  _18=0 sender_address payload _22 owner_address
+    STSLICER	//  _18=0 sender_address payload _23
+    s3 PUSH	//  _18=0 sender_address payload _23 _24=0
+    STGRAMS	//  _18=0 sender_address payload _25
+    s1 s3 XCHG	//  payload sender_address _18=0 _25
+    107 STU	//  payload sender_address _39
+    SWAP	//  payload _39 sender_address
+    STSLICER	//  payload _40
+    STREF	//  msg
+    ENDC	//  _42
+    64 PUSHINT	//  _42 _43=64
+    SENDRAWMSG
+  }>
+}END>c

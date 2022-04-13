@@ -1,0 +1,168 @@
+"Asm.fif" include
+// automatically generated from `/Users/vacheslaveliseev/Library/Application Support/toncli/func-libs/stdlib-tests.func` `/Users/vacheslaveliseev/@dev/ton/func-contest1/tests/func/5.fc` 
+PROGRAM{
+  90427 DECLMETHOD pack_data
+  DECLPROC load_data
+  DECLPROC unpack_data
+  DECLPROC unpack_request
+  DECLPROC recv_internal
+  DECLPROC recv_external
+  pack_data PROC:<{
+    //  public_key1 public_key2
+    NEWDICT	//  public_key1 public_key2 _3
+    s0 s2 XCHG
+    NEWC	//  _3 public_key2 public_key1 _4
+    256 STU	//  _3 public_key2 _6
+    256 STU	//  _3 _8
+    STDICT	//  _9
+    ENDC	//  data
+  }>
+  load_data PROCREF:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  data
+    256 LDU	//  _3 data
+    256 LDU	//  _3 _6 data
+    PLDDICT	//  _3 _6 _9
+  }>
+  unpack_data PROCREF:<{
+    //  msg_data
+    256 LDU	//  public_key msg_data
+    9 PUSHPOW2	//  public_key msg_data _7=512
+    LDSLICEX	//  public_key signature msg_data
+    PLDREF	//  public_key signature request
+  }>
+  unpack_request PROCREF:<{
+    //  request_cell
+    CTOS	//  request_slice
+    32 LDU	//  valid_until request_slice
+    8 LDU	//  valid_until mode request_slice
+    PLDREF	//  valid_until mode msg_to_send
+  }>
+  recv_internal PROC:<{
+    // 
+  }>
+  recv_external PROC:<{
+    //  in_msg_body
+    unpack_data INLINECALLDICT	//  public_key signature request
+    DUP	//  public_key signature request request
+    unpack_request INLINECALLDICT	//  public_key signature request valid_until mode msg_to_send
+    NOW	//  public_key signature request valid_until mode msg_to_send _10
+    s3 PUSH
+    NOW	//  public_key signature request valid_until mode msg_to_send _10 valid_until _11
+    SUB	//  public_key signature request valid_until mode msg_to_send _10 _12
+    60 GTINT	//  public_key signature request valid_until mode msg_to_send _10 _14
+    OR	//  public_key signature request valid_until mode msg_to_send _15
+    s1 s3 XCHG	//  public_key signature request msg_to_send mode valid_until _15
+    LESS	//  public_key signature request msg_to_send mode _16
+    35 THROWIF
+    s0 s2 XCHG	//  public_key signature mode msg_to_send request
+    HASHCU	//  public_key signature mode msg_to_send request_hash
+    s0 s3 PUXC
+    s5 PUSH	//  public_key request_hash mode msg_to_send request_hash signature public_key
+    CHKSIGNU	//  public_key request_hash mode msg_to_send _21
+    37 THROWIFNOT
+    load_data INLINECALLDICT	//  public_key request_hash mode msg_to_send public_key1 public_key2 requests_dict
+    s6 s2 PUSH2	//  public_key request_hash mode msg_to_send public_key1 public_key2 requests_dict public_key public_key1
+    EQUAL	//  public_key request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_first
+    s7 s2 XCPU	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict public_key public_key2
+    EQUAL	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second
+    s7 s0 PUSH2	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second sent_by_first sent_by_second
+    OR	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second _32
+    90 THROWIFNOT
+    s6 s1 PUSH2
+    8 PUSHPOW2	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second request_hash requests_dict _36=256
+    DICTUGET
+    NULLSWAPIFNOT	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second request_record found
+    IF:<{	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second request_record
+      1 LDU	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second _40 request_record
+      1 PLDU	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second first_approved second_approved
+      s1 s9 PUSH2	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second first_approved second_approved first_approved sent_by_first
+      AND	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second first_approved second_approved _46
+      s1 s3 PUSH2	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second first_approved second_approved _46 second_approved sent_by_second
+      AND	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second first_approved second_approved _46 _47
+      OR	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second first_approved second_approved _48
+      91 THROWIF
+      ACCEPT
+      s1 s2 PUSH2	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second first_approved second_approved first_approved sent_by_second
+      AND	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second first_approved second_approved _52
+      s1 s10 PUSH2	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second first_approved second_approved _52 second_approved sent_by_first
+      AND	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second first_approved second_approved _52 _53
+      OR	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second first_approved second_approved both_approved
+      IF:<{	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second first_approved second_approved
+        3 BLKDROP
+        s5 POP
+        s5 POP	//  public_key2 requests_dict mode msg_to_send public_key1
+        s0 s2 XCHG	//  public_key2 requests_dict public_key1 msg_to_send mode
+        SENDRAWMSG
+      }>ELSE<{	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second first_approved second_approved
+        s6 POP
+        s6 POP	//  sent_by_first request_hash first_approved second_approved public_key1 public_key2 requests_dict sent_by_second
+        IF:<{	//  sent_by_first request_hash first_approved second_approved public_key1 public_key2 requests_dict
+          s3 POP	//  sent_by_first request_hash first_approved requests_dict public_key1 public_key2
+          1 PUSHINT	//  sent_by_first request_hash first_approved requests_dict public_key1 public_key2 _59=1
+        }>ELSE<{	//  sent_by_first request_hash first_approved _59 public_key1 public_key2 requests_dict
+          s0 s3 XCHG	//  sent_by_first request_hash first_approved requests_dict public_key1 public_key2 _59
+        }>
+        s0 s6 XCHG	//  _59 request_hash first_approved requests_dict public_key1 public_key2 sent_by_first
+        IF:<{	//  _59 request_hash first_approved requests_dict public_key1 public_key2
+          s3 POP	//  _59 request_hash public_key2 requests_dict public_key1
+          1 PUSHINT	//  _59 request_hash public_key2 requests_dict public_key1 _61=1
+        }>ELSE<{	//  _59 request_hash _61 requests_dict public_key1 public_key2
+          s0 s3 XCHG	//  _59 request_hash public_key2 requests_dict public_key1 _61
+        }>
+        NEWC	//  _59 request_hash public_key2 requests_dict public_key1 _61 _63
+        1 STU	//  _59 request_hash public_key2 requests_dict public_key1 _65
+        s1 s5 XCHG	//  public_key1 request_hash public_key2 requests_dict _59 _65
+        1 STU	//  public_key1 request_hash public_key2 requests_dict _67
+        ENDC	//  public_key1 request_hash public_key2 requests_dict _68
+        CTOS	//  public_key1 request_hash public_key2 requests_dict replaced_record
+        s0 s3 s3 XCHG3
+        8 PUSHPOW2	//  public_key1 public_key2 replaced_record request_hash requests_dict _71=256
+        DICTUREPLACE	//  public_key1 public_key2 _122 _123
+        DROP	//  public_key1 public_key2 requests_dict
+        ROT	//  public_key2 requests_dict public_key1
+      }>
+      NEWC	//  public_key2 requests_dict public_key1 _73
+      256 STU	//  public_key2 requests_dict _75
+      s1 s2 XCHG	//  requests_dict public_key2 _75
+      256 STU	//  requests_dict _77
+      STDICT	//  _78
+      ENDC	//  _79
+      c4 POP
+    }>ELSE<{	//  sent_by_first request_hash mode msg_to_send public_key1 public_key2 requests_dict sent_by_second request_record
+      DROP
+      s4 POP
+      s4 POP	//  sent_by_first request_hash requests_dict sent_by_second public_key1 public_key2
+      ACCEPT
+      s0 s2 XCHG	//  sent_by_first request_hash requests_dict public_key2 public_key1 sent_by_second
+      IF:<{	//  sent_by_first request_hash requests_dict public_key2 public_key1
+        1 PUSHINT	//  sent_by_first request_hash requests_dict public_key2 public_key1 _83=1
+      }>ELSE<{	//  sent_by_first request_hash requests_dict public_key2 public_key1
+        0 PUSHINT	//  sent_by_first request_hash requests_dict public_key2 public_key1 _83=0
+      }>
+      s0 s5 XCHG	//  _83 request_hash requests_dict public_key2 public_key1 sent_by_first
+      IF:<{	//  _83 request_hash requests_dict public_key2 public_key1
+        1 PUSHINT	//  _83 request_hash requests_dict public_key2 public_key1 _86=1
+      }>ELSE<{	//  _83 request_hash requests_dict public_key2 public_key1
+        0 PUSHINT	//  _83 request_hash requests_dict public_key2 public_key1 _86=0
+      }>
+      NEWC	//  _83 request_hash requests_dict public_key2 public_key1 _86 _89
+      1 STU	//  _83 request_hash requests_dict public_key2 public_key1 _91
+      s1 s5 XCHG	//  public_key1 request_hash requests_dict public_key2 _83 _91
+      1 STU	//  public_key1 request_hash requests_dict public_key2 _93
+      ENDC	//  public_key1 request_hash requests_dict public_key2 _94
+      CTOS	//  public_key1 request_hash requests_dict public_key2 new_record
+      2SWAP
+      8 PUSHPOW2	//  public_key1 public_key2 new_record request_hash requests_dict _97=256
+      DICTUSET	//  public_key1 public_key2 requests_dict
+      s0 s2 XCHG
+      NEWC	//  requests_dict public_key2 public_key1 _99
+      256 STU	//  requests_dict public_key2 _101
+      256 STU	//  requests_dict _103
+      STDICT	//  _104
+      ENDC	//  _105
+      c4 POP
+    }>
+  }>
+}END>c
