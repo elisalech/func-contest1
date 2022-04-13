@@ -68,7 +68,7 @@ int equal_slices (slice a, slice b) asm "SDEQ";
     var msg = begin_cell()
       .store_uint(0x10, 6)
       .store_slice(sender_address)
-      .store_grams(msg_value)
+      .store_grams(0)
       .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
       .store_uint(3, 32)
       .store_uint(query_id, 64)
@@ -76,7 +76,7 @@ int equal_slices (slice a, slice b) asm "SDEQ";
       .store_slice(memorized_address)
       .end_cell();
 
-    send_raw_message(msg, 0x64);
+    send_raw_message(msg, 64);
 
   } else {
     ;; Throw if address memorizer get any other message

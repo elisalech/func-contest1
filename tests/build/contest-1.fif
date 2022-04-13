@@ -1,0 +1,29 @@
+"Asm.fif" include
+// automatically generated from `/Users/vacheslaveliseev/Library/Application Support/toncli/func-libs/stdlib-tests.func` `/Users/vacheslaveliseev/@dev/ton/func-contest1/tests/func/1.fc` 
+PROGRAM{
+  DECLPROC recv_internal
+  128253 DECLMETHOD get_total
+  recv_internal PROC:<{
+    //  in_msg
+    DUP	//  in_msg in_msg
+    SBITS	//  in_msg _2
+    32 LESSINT	//  in_msg _4
+    666 THROWIF
+    32 PLDU	//  n
+    c4 PUSH	//  n _10
+    CTOS	//  n ds
+    64 PLDU	//  n total
+    SWAP	//  total n
+    ADD	//  total
+    NEWC	//  total _16
+    64 STU	//  _18
+    ENDC	//  _19
+    c4 POP
+  }>
+  get_total PROC:<{
+    // 
+    c4 PUSH	//  _0
+    CTOS	//  _1
+    64 PLDU	//  _3
+  }>
+}END>c
