@@ -47,28 +47,25 @@ int equal_slices (slice a, slice b) asm "SDEQ";
   return sender_address;
 }
 
-(int, int) parse_msg_body (slice in_msg_body) impure inline_ref {
-  return (in_msg_body~load_int(32), in_msg_body~load_uint(64));
-}
-
 ;; testable
 () recv_internal (int balance, int msg_value, cell in_msg_full, slice in_msg_body) {
   (slice last_manager_address, slice memorized_address) = load_data();
-  var (int op, int query_id) = parse_msg_body(in_msg_body);
+  (int op, int query_id) = (in_msg_body~load_uint(32), in_msg_body~load_uint(64));
 
   if (op == 1) {
     slice new_manager_address = parse_sender_address(in_msg_full);
 
-    throw_if(299, equal_slices(last_manager_address, new_manager_address) & equal_slices(memorized_address, in_msg_body));
+		throw_unless(299, equal_slices(new_manager_address, last_manager_address));
 
     save_data(new_manager_address, in_msg_body);
-    
-  } elseif (op == 2)  {
+    return ();
+  }
+  if (op == 2)  {
     slice sender_address = parse_sender_address(in_msg_full);
     var msg = begin_cell()
       .store_uint(0x10, 6)
       .store_slice(sender_address)
-      .store_grams(msg_value)
+      .store_grams(0)
       .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
       .store_uint(3, 32)
       .store_uint(query_id, 64)
@@ -76,10 +73,9 @@ int equal_slices (slice a, slice b) asm "SDEQ";
       .store_slice(memorized_address)
       .end_cell();
 
-    send_raw_message(msg, 0x64);
+    send_raw_message(msg, 64);
+    return ();
+  } 
 
-  } else {
-    ;; Throw if address memorizer get any other message
-    throw(300);
-  }
+  throw(300);
 }

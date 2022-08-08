@@ -1,78 +1,25 @@
-# Welcome to first FunC contest by TON Foundation
+# Setup
+Install python, tar, [update toncli to 0.0.33 version](https://github.com/disintar/toncli) and update toncli libs (`toncli update_libs`).
 
-There are five `.fc` files in the folder:
-1. [1.fc](1.fc) - First problem "Counter"
-2. [2.fc](2.fc) - Second problem "Proxy"
-3. [3.fc](3.fc) - Third problem "Address Memorizer"
-4. [4.fc](4.fc) - Fourth problem "Hashmaps"
-5. [5.fc](5.fc) - Fifth problem "Two-owner wallet"
+# Run tests
+Put `tar` archive which you submitted to bot into submitions directory.
 
-Each file has two parts:
+Run `python checker.py`.
 
-* Comment with description of what the smart-contract should do.
+Results (scores) will be written to `results.csv`. 
 
-* Code of smart-contract with one or more functions marked as `testable`.
+You can also run tests manually:
+  * Put `*.fc` to `tests/func`
+  * `cd tests`
+  * `toncli run_tests -c contest-1 -o`
+  * `toncli run_tests -c contest-2 -o`
+  * `toncli run_tests -c contest-3 -o`
+  * `toncli run_tests -c contest-4 -o`
 
-The purpose of the contestants is to match code and description, fix bugs if provided code does not satisfy description and optimize the code. 
+It will write to console which tests you passed.
 
-We ask participants to not change the signature (number, order and types of arguments and result) of `testable` functions for us to be able to evaluate their submission.
+Note, that contest-5 is a little bit different. In addition to all tests required to be passed, it also requires that for all tests in the `["get_one_ext_message", "get_coupled_ext_message", "first_sign_1", "first_sign_2", "first_sign_3", "second_sign_4", "first_cosign_1", "second_cosign_2", "mass_first_sign_1", "mass_first_sign_2", "mass_first_sign_3", "mass_second_sign_4", "mass_second_sign_5", "mass_second_sign_6", "mass_second_sign_7_251", "mass_second_sign_8_251", "mass_second_sign_9_77", "mass_first_cosign_9_77", "mass_second_sign_10_77", "mass_second_sign_11_77", "mass_second_sign_12_77", "mass_second_sign_13_77", "mass_second_sign_14_77", "mass_second_sign_15_77", "mass_second_sign_16_251", "mass_first_cosign_16_251"]` list `gas_limit` will me equal to `max_gas_limit` (in other words message was _accepted_). And for all tests in `["second_cosign_2_replay", "second_sign_4_replay", "second_sign_1_too_late", "second_sign_7_too_late", "wrong_sign_body", "mixed_sign_body", "wrong_key_body", "no_msg_body", "incorrect_request_body", "incorrect_layout_body"]` message should not be accepted (`gas_limit == 10000`).
 
-## How to submit
 
-Solutions should be submitted as tar archive which contain up to 5 files labeled `1.fc`, `2.fc`, `3.fc`, `4.fc`, `5.fc` (each file represents a corresponding task). 
-
-Each file will be compiled with func from [main repository](https://github.com/newton-blockchain/ton/tree/master/crypto/func). During compilation each file will be supplemented with a [stdlib - FunC standard library](https://github.com/newton-blockchain/ton/blob/master/crypto/smartcont/stdlib.fc). 
-
-Each submission tarball should also contain `participant.json` with the following structure:
-```
-{
-  "address" : "your-TON-wallet-address", 
-  "username": "desired-username-in-public-list",
-  "codeforces": "(optional)codeforces-username"
-}
-```
-
-Bot for receiving submissions will be announced later on https://t.me/toncontests.
-
-This challenge aims to attract new developers to TON ecosystem. To reduce the chances of newcomers discouraging we kindly ask skilled developers of already established TON teams to participate with "out of competition" mark.
-You can set "out of competition" mark by adding to the tarball file with name `OUT`.
-
-## How will it be checked
-
-For each problem we have a set of test vectors which satisfy the description. 
-
-We will automatically run those tests against the `testable` functions. 
-
-If functions of one task pass all the tests, this task is considered "solved". 
-
-For "solved" tasks gas-usage of each test is recorded, sum of gas used by all tests is the second-order metric which will allow us to determine the winner amongst people with equal number of solved tasks.
-
-Winners are determined as follows:
-
-* Person who solved more tasks will be ranked higher then person who will solve less (regardless of optimization).
-
-* For evaluation of gas-usage each problem has a weight which in general inversely correlated with average gas-usage, thus 10 gas units optimization of the function which consume 100 gas units will be scored higher than 10 gas units optimization of the function which consume 10000 gas units.
-
-## Docs
-
-We recommend participant to check out https://ton.org/docs in particular "Basic concepts" and "Smart Contracts" sections. 
-
-Additional and detailed information is available in [whitepapers](https://ton.org/docs/#/docs).
-
-Examples of standard smart contracts can be found [here](https://github.com/newton-blockchain/ton/tree/master/crypto/smartcont).
-
-Developer Chats - https://t.me/tondev_eng, https://t.me/tondev.
-
-Introduction - https://telegra.ph/Its-time-to-try-something-new-Asynchronous-smart-contracts-03-25.
-
-## How to compile and test
-
-We recommend using the [toncli](https://github.com/disintar/toncli) - open source tool written by community developers.
-
-This tool allows you to work with FunC smart contracts on Ubuntu, MacOS or Windows - compile them and run local tests. Also many other things, but in this contest you don't need to deploy contracts to the network.
-
-Playground toncli + 1st contest task you can find [here](https://github.com/disintar/task-1-playground).
-
-If for some reason you don't want to use the tool you can use the FunC compiler and Fift scripts [directly](https://ton.org/docs/#/smart-contracts/?id=func).
-
-For syntax highlighting you can use [TON IDEA Plugin](https://plugins.jetbrains.com/plugin/18541-ton-development) or [Sublime Text Plugin](https://github.com/savva425/func_plugin_sublimetext3).
+# Acknowledgements
+@tvorogme and [disintar team](https://github.com/disintar) for helping in organization of easy to use test suite.
